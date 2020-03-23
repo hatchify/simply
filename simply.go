@@ -41,8 +41,14 @@ func Test(name string, context *testing.T) (test *Simply) {
 		t.callingFunc = fmt.Sprintf("%s::%s", context.Name(), name)
 
 		if _, ok := funcs[context.Name()]; !ok {
+			// Space between tests
+			if len(funcs) > 0 {
+				fmt.Println("")
+			}
+
+			// Only print test name once
 			funcs[context.Name()] = nil
-			fmt.Println("\n" + context.Name())
+			fmt.Println(context.Name())
 		}
 	}
 
