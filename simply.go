@@ -35,20 +35,22 @@ func Test(context *testing.T, name string) (test *Simply) {
 	t.Validate = context.Error
 	t.result.Status = PendingExpects
 
-	if _, abs, line, ok := runtime.Caller(1); ok {
-		_, file := path.Split(abs)
-		t.callingLine = fmt.Sprintf("%s:%d", file, line)
-		t.callingFunc = fmt.Sprintf("%s::%s", context.Name(), name)
+	if testing.Verbose() {
+		if _, abs, line, ok := runtime.Caller(1); ok {
+			_, file := path.Split(abs)
+			t.callingLine = fmt.Sprintf("%s:%d", file, line)
+			t.callingFunc = fmt.Sprintf("%s::%s", context.Name(), name)
 
-		if _, ok := funcs[context.Name()]; !ok {
-			// Space between tests
-			if len(funcs) > 0 {
-				fmt.Println("")
+			if _, ok := funcs[context.Name()]; !ok {
+				// Space between tests
+				if len(funcs) > 0 {
+					fmt.Println("")
+				}
+
+				// Only print test name once
+				funcs[context.Name()] = nil
+				fmt.Println(context.Name())
 			}
-
-			// Only print test name once
-			funcs[context.Name()] = nil
-			fmt.Println(context.Name())
 		}
 	}
 
@@ -109,5 +111,7 @@ func (t *Simply) handleFail() {
 }
 
 func (t *Simply) reportSuccess(a ...interface{}) {
-	fmt.Println(t.result)
+	if testing.Verbose() {
+		fmt.Println(t.result)
+	}
 }
