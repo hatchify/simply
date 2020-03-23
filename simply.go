@@ -29,7 +29,7 @@ type Simply struct {
 var funcs = map[string]interface{}{}
 
 // Test returns a new instance of a test
-func Test(name string, context *testing.T) (test *Simply) {
+func Test(context *testing.T, name string) (test *Simply) {
 	var t Simply
 	t.Name = name
 	t.Validate = context.Error
@@ -55,9 +55,9 @@ func Test(name string, context *testing.T) (test *Simply) {
 	return &t
 }
 
-// TestTarget returns a new instance of a test with target set
-func TestTarget(target interface{}, name string, context *testing.T) (test *Simply) {
-	t := Test(name, context)
+// Target returns a new instance of a test with target set
+func Target(target interface{}, context *testing.T, name string) (test *Simply) {
+	t := Test(context, name)
 	t.target = stringify(target)
 	t.result.Status = PendingComparison
 
