@@ -20,25 +20,9 @@ const (
 	Passed
 )
 
-// Result represents a test's completion status
-type Result struct {
-	Status Status
+// testResult represents a test's completion status
+type testResult struct {
+	status Status
 
 	output string
-}
-
-func (r *Result) String() string {
-	switch r.Status {
-	case PassPendingValidation, Passed:
-		// Test just validated and passed
-		r.Status = Passed
-		return r.output
-	case FailPendingValidation, Failed:
-		// Test just validated and failed
-		r.Status = Failed
-		return r.output
-	}
-
-	// If we don't have output
-	return toString(*r)
 }
