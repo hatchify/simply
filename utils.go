@@ -6,12 +6,16 @@ import (
 )
 
 func stringify(from interface{}) (comp comparable) {
-	if val, ok := from.(string); ok {
-		return comparable(val)
+	if val, ok := from.(error); ok {
+		return comparable(val.Error())
 	}
 
 	if val, ok := from.(int); ok {
 		return comparable(strconv.Itoa(val))
+	}
+
+	if val, ok := from.(string); ok {
+		return comparable(val)
 	}
 
 	if s, err := json.MarshalIndent(from, "", " "); err == nil {

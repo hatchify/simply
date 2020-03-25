@@ -17,6 +17,8 @@ type Simply struct {
 	// Test.Validate() parses the test Result and reports success/failure
 	Validate func(args ...interface{})
 
+	context *testing.T
+
 	target   comparable
 	expected comparable
 
@@ -32,6 +34,7 @@ var funcs = map[string]interface{}{}
 func Test(context *testing.T, name string) (test *Simply) {
 	var t Simply
 	t.Name = name
+	t.context = context
 	t.Validate = context.Error
 	t.result.Status = PendingExpects
 
@@ -79,6 +82,17 @@ func (t *Simply) Target(target interface{}) *Simply {
 	return t
 }
 
+// Assert requires the result, or stops the test
+func (t *Simply) Assert() *Simply {
+	t.Validate = t.context.Fatal
+	return t
+}
+
+// Convenience for syntax sugar
+func Assert(t *Simply) *Simply {
+	return t.Assert()
+}
+
 // Equals ends a test with an expected value to compare to target
 // Returns a reference to test Result for validation
 func (t *Simply) Equals(val interface{}) *Result {
@@ -87,7 +101,23 @@ func (t *Simply) Equals(val interface{}) *Result {
 		t.handlePass()
 
 	} else {
-		t.handleFail()
+		msg := fmt.Sprintf("%s - Failed! Expected <%+v> but got: <%+v>", t.Name, t.expected, t.target)
+		t.handleFail(msg)
+	}
+
+	return &t.result
+}
+
+// DoesNotEqual ends a test with an expected value to compare to target
+// Returns a reference to test Result for validation
+func (t *Simply) DoesNotEqual(val interface{}) *Result {
+	t.expected = stringify(val)
+	if t.target != t.expected {
+		t.handlePass()
+
+	} else {
+		msg := fmt.Sprintf("%s - Failed! Expected not to equal: <%+v>", t.Name, t.expected)
+		t.handleFail(msg)
 	}
 
 	return &t.result
@@ -102,12 +132,12 @@ func (t *Simply) handlePass() {
 	t.result.output = fmt.Sprintf("    %s - Passed!", t.Name)
 }
 
-func (t *Simply) handleFail() {
+func (t *Simply) handleFail(msg string) {
 	// Validation handler should already be set to t.context.Error()
 	// t.Validate() should handle failures using default stdlib testing
 
 	t.result.Status = FailPendingValidation
-	t.result.output = fmt.Sprintf("%s - Failed! Expected <%+v> but got: <%+v>", t.Name, t.expected, t.target)
+	t.result.output = msg
 }
 
 func (t *Simply) reportSuccess(a ...interface{}) {
