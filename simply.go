@@ -136,7 +136,11 @@ func (t *Simply) handlePass(msg string) {
 	// Set validation handler to success
 	// t.Validate() should print success output :)
 
-	t.result.output += "\n"
+	if len(t.result.output) > 0 {
+		t.result.output += "\n        "
+	} else {
+		t.result.output += "\n"
+	}
 
 	switch t.result.status {
 	case PendingComparison, PassPendingValidation:
@@ -144,16 +148,9 @@ func (t *Simply) handlePass(msg string) {
 
 		t.result.status = PassPendingValidation
 		t.Validate = t.reportSuccess
+
 	case Passed, Failed:
-		t.result.status = Failed
-		t.result.output = fmt.Sprintf("\nError :: %s - [Test Sequence] - ", t.Name)
-		if _, _, line, ok := runtime.Caller(2); ok {
-			t.result.output += fmt.Sprintf("%s:%d:\n  -- Please avoid running comparisons after validation", t.callingFile, line)
-		} else {
-			t.result.output += t.callingLine + "\n  -- Please avoid running comparisons after validation"
-		}
-		t.context.Error(t.result.output)
-		t.Validate = t.duplicateValidation
+		t.handlePostValidationError()
 	}
 }
 
@@ -171,16 +168,21 @@ func (t *Simply) handleFail(msg string) {
 		t.Validate = t.context.Error
 
 	case Passed, Failed:
-		t.result.status = Failed
-		t.result.output = fmt.Sprintf("\nError :: %s - [Test Sequence] - ", t.Name)
-		if _, _, line, ok := runtime.Caller(2); ok {
-			t.result.output += fmt.Sprintf("%s:%d:\n  -- Please avoid running comparisons after validation", t.callingFile, line)
-		} else {
-			t.result.output += t.callingLine + "\n  -- Please avoid running comparisons after validation"
-		}
-		t.context.Error(t.result.output)
-		t.Validate = t.duplicateValidation
+		t.handlePostValidationError()
 	}
+}
+
+func (t *Simply) handlePostValidationError() {
+	t.result.status = Failed
+	t.result.output = fmt.Sprintf("\nError :: %s - [Test Sequence] - ", t.Name)
+	if _, _, line, ok := runtime.Caller(2); ok {
+		t.result.output += fmt.Sprintf("%s:%d:\n  -- Please avoid running comparisons after validation", t.callingFile, line)
+	} else {
+		t.result.output += t.callingLine + "\n  -- Please avoid running comparisons after validation"
+	}
+	t.context.Error(t.result.output)
+	t.Validate = t.duplicateValidation
+
 }
 
 func (t *Simply) reportSuccess(a ...interface{}) {
