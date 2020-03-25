@@ -25,7 +25,7 @@ type Simply struct {
 	callingLine string
 	callingFunc string
 
-	result Result
+	result *Result
 }
 
 var funcs = map[string]interface{}{}
@@ -36,7 +36,10 @@ func Test(context *testing.T, name string) (test *Simply) {
 	t.Name = name
 	t.context = context
 	t.Validate = context.Error
-	t.result.Status = PendingExpects
+
+	var result Result
+	t.result = &result
+	t.result.Status = PendingTarget
 
 	if testing.Verbose() {
 		if _, abs, line, ok := runtime.Caller(1); ok {
@@ -88,7 +91,7 @@ func (t *Simply) Assert() *Simply {
 	return t
 }
 
-// Convenience for syntax sugar
+// Assert is static convenience for syntax sugar
 func Assert(t *Simply) *Simply {
 	return t.Assert()
 }
@@ -105,7 +108,7 @@ func (t *Simply) Equals(val interface{}) *Result {
 		t.handleFail(msg)
 	}
 
-	return &t.result
+	return t.result
 }
 
 // DoesNotEqual ends a test with an expected value to compare to target
@@ -120,16 +123,16 @@ func (t *Simply) DoesNotEqual(val interface{}) *Result {
 		t.handleFail(msg)
 	}
 
-	return &t.result
+	return t.result
 }
 
 func (t *Simply) handlePass() {
 	// Set validation handler to success
 	// t.Validate() should print success output :)
-	t.Validate = t.reportSuccess
-
 	t.result.Status = PassPendingValidation
 	t.result.output = fmt.Sprintf("    %s - Passed!", t.Name)
+
+	t.Validate = t.reportSuccess
 }
 
 func (t *Simply) handleFail(msg string) {
@@ -141,6 +144,8 @@ func (t *Simply) handleFail(msg string) {
 }
 
 func (t *Simply) reportSuccess(a ...interface{}) {
+	t.result.Status = Passed
+
 	if testing.Verbose() {
 		fmt.Println(t.result)
 	}

@@ -4,8 +4,8 @@ package simply
 type Status int
 
 const (
-	// PendingExpects status means test has not yet set a target value
-	PendingExpects = iota
+	// PendingTarget status means test has not yet set a target value
+	PendingTarget = iota
 	// PendingComparison status means test has not yet compared the expected value
 	PendingComparison
 
@@ -27,20 +27,18 @@ type Result struct {
 	output string
 }
 
-func (r Result) String() string {
+func (r *Result) String() string {
 	switch r.Status {
-	case PassPendingValidation:
+	case PassPendingValidation, Passed:
 		// Test just validated and passed
 		r.Status = Passed
 		return r.output
-	case FailPendingValidation:
+	case FailPendingValidation, Failed:
 		// Test just validated and failed
 		r.Status = Failed
 		return r.output
 	}
 
-	var comparable interface{}
-	comparable = stringify(&r)
-
-	return comparable.(string)
+	// If we don't have output
+	return toString(*r)
 }

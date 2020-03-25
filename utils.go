@@ -6,20 +6,24 @@ import (
 )
 
 func stringify(from interface{}) (comp comparable) {
+	return comparable(toString(from))
+}
+
+func toString(from interface{}) string {
 	if val, ok := from.(error); ok {
-		return comparable(val.Error())
+		return val.Error()
 	}
 
 	if val, ok := from.(int); ok {
-		return comparable(strconv.Itoa(val))
+		return strconv.Itoa(val)
 	}
 
 	if val, ok := from.(string); ok {
-		return comparable(val)
+		return val
 	}
 
 	if s, err := json.MarshalIndent(from, "", " "); err == nil {
-		return comparable(s)
+		return string(s)
 	}
 
 	panic("Unable to compare value")
