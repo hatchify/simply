@@ -5,11 +5,11 @@ import (
 	"strconv"
 )
 
-func stringify(from interface{}) (comp comparable) {
-	return comparable(toString(from))
+func makeComparable(from interface{}) (comp comparable) {
+	return comparable(Stringify(from))
 }
 
-func toString(from interface{}) string {
+func Stringify(from interface{}) string {
 	if val, ok := from.(error); ok {
 		return val.Error()
 	}

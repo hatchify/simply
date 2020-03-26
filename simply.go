@@ -70,7 +70,7 @@ func Test(context *testing.T, name string) (test *Simply) {
 // Target returns a new instance of a test with target set
 func Target(target interface{}, context *testing.T, name string) *Simply {
 	t := Test(context, name)
-	t.target = stringify(target)
+	t.target = makeComparable(target)
 	t.result.status = PendingComparison
 
 	return t
@@ -85,7 +85,7 @@ func (t *Simply) GetStatus() Status {
 // Returns a reference to test for chaining convenience
 func (t *Simply) Target(target interface{}) *Simply {
 	t.result.status = PendingComparison
-	t.target = stringify(target)
+	t.target = makeComparable(target)
 	return t
 }
 
@@ -103,7 +103,7 @@ func Assert(t *Simply) *Simply {
 // Equals ends a test with an expected value to compare to target
 // Returns a reference to test Result for validation
 func (t *Simply) Equals(val interface{}) *Simply {
-	t.expected = stringify(val)
+	t.expected = makeComparable(val)
 	if t.target == t.expected {
 		msg := ""
 		msg += fmt.Sprintf("Pass :: %s - [Equals]", t.Name)
@@ -119,7 +119,7 @@ func (t *Simply) Equals(val interface{}) *Simply {
 // DoesNotEqual ends a test with an expected value to compare to target
 // Returns a reference to test Result for validation
 func (t *Simply) DoesNotEqual(val interface{}) *Simply {
-	t.expected = stringify(val)
+	t.expected = makeComparable(val)
 	if t.target != t.expected {
 		msg := ""
 		msg += fmt.Sprintf("Pass :: %s - [DoesNotEqual]", t.Name)
