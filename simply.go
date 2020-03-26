@@ -27,6 +27,7 @@ type Simply struct {
 	callingFunc string
 	callingLine string
 
+	assert bool
 	result *testResult
 }
 
@@ -90,7 +91,7 @@ func (t *Simply) Target(target interface{}) *Simply {
 
 // Assert requires the result, or stops the test
 func (t *Simply) Assert() *Simply {
-	t.Validate = t.context.Fatal
+	t.assert = true
 	return t
 }
 
@@ -165,7 +166,11 @@ func (t *Simply) handleFail(msg string) {
 		t.result.output += msg
 
 		t.result.status = FailPendingValidation
-		t.Validate = t.context.Error
+		if t.assert {
+			t.Validate = t.context.Fatal
+		} else {
+			t.Validate = t.context.Error
+		}
 
 	case Passed, Failed:
 		t.handlePostValidationError()
