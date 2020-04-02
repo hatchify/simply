@@ -9,6 +9,7 @@ func makeComparable(from interface{}) (comp comparable) {
 	return comparable(Stringify(from))
 }
 
+// Stringify makes anything Printable
 func Stringify(from interface{}) string {
 	if val, ok := from.(error); ok {
 		return val.Error()
