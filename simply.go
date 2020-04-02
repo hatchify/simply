@@ -109,7 +109,10 @@ func (t *Simply) Equals(val interface{}) *Simply {
 		msg += fmt.Sprintf("Pass :: %s - [Equals]", t.Name)
 		t.handlePass(msg)
 	} else {
-		msg := fmt.Sprintf("Fail :: %s - [Equals] - Expected <%+v> but got: <%+v>", t.Name, t.expected, t.target)
+		msg := fmt.Sprintf("Fail :: %s - [Equals]", t.Name)
+		if testing.Verbose() {
+			msg = fmt.Sprintf("Fail :: %s - [Equals] - Expected <%+v> but got: <%+v>", t.Name, t.expected, t.target)
+		}
 		t.handleFail(msg)
 	}
 
@@ -126,7 +129,10 @@ func (t *Simply) DoesNotEqual(val interface{}) *Simply {
 		t.handlePass(msg)
 
 	} else {
-		msg := fmt.Sprintf("Fail :: %s - [DoesNotEqual] - Expected not to equal: <%+v>", t.Name, t.expected)
+		msg := fmt.Sprintf("Fail :: %s - [DoesNotEqual]", t.Name)
+		if testing.Verbose() {
+			msg = fmt.Sprintf("Fail :: %s - [DoesNotEqual] - Expected not to equal: <%+v>", t.Name, t.expected)
+		}
 		t.handleFail(msg)
 	}
 
