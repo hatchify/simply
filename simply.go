@@ -33,6 +33,26 @@ type Simply struct {
 
 var funcs = map[string]interface{}{}
 
+func Run(context *testing.T, cases []TestCase) {
+	var (
+		test *Simply
+		testCase TestCase
+	)
+
+	// Iterate cases
+	for _, testCase = range cases {
+		if testCase.PreHook != nil {
+			// Run modifier
+			testCase.PreHook(testCase)
+		}
+
+		// Compare target/expected values
+		test = Target(testCase.Target, context, testCase.Message)
+		test.Equals(testCase.Expected)
+		test.Validate(test)
+	}
+}
+
 // Test returns a new instance of a test
 func Test(context *testing.T, name string) (test *Simply) {
 	var t Simply
